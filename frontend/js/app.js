@@ -9,6 +9,22 @@ const App = {
   async init() {
     console.log('[DUE Agent] Initializing...');
 
+    // Tải cấu hình động từ Vercel Serverless Function
+    try {
+      const res = await fetch('/api/config');
+      if (res.ok) {
+        const envConfig = await res.json();
+        // Ghi đè cấu hình vào CONFIG
+        if (envConfig.SUPABASE_URL) CONFIG.SUPABASE.URL = envConfig.SUPABASE_URL;
+        if (envConfig.SUPABASE_ANON_KEY) CONFIG.SUPABASE.ANON_KEY = envConfig.SUPABASE_ANON_KEY;
+        if (envConfig.N8N_WEBHOOK_URL) CONFIG.N8N_WEBHOOK_URL = envConfig.N8N_WEBHOOK_URL;
+        if (envConfig.N8N_TRACK_EVENT_URL) CONFIG.N8N_TRACK_EVENT_URL = envConfig.N8N_TRACK_EVENT_URL;
+        console.log('[DUE Agent] Dynamic config loaded successfully');
+      }
+    } catch (err) {
+      console.warn('[DUE Agent] Could not load dynamic config from /api/config. Using defaults.');
+    }
+
     // Initialize visitor ID
     Storage.getVisitorId();
 
