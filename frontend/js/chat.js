@@ -1,0 +1,220 @@
+/**
+ * DUE Agent - Chat Module
+ * Xử lý gửi/nhận tin nhắn, real streaming từ n8n
+ */
+const Chat = {
+  _isStreaming: false,
+  _abortController: null,
+
+  /**
+   * Gửi tin nhắn đến n8n webhook
+   */
+  async sendMessage(userMessage) {
+    if (!userMessage.trim() || this._isStreaming) return;
+
+    const chatId = Storage.getActiveChat();
+    if (!chatId) return;
+
+    // Lưu tin nhắn user
+    Storage.addMessage(chatId, 'user', userMessage);
+    UI.appendMessage('user', userMessage);
+    UI.clearInput();
+    UI.scrollToBottom();
+
+    // Theo dõi câu hỏi
+    Stats.trackEvent('message');
+
+    // Tạo tin nhắn agent với thinking text ngay lập tức
+    Storage.addMessage(chatId, 'assistant', '');
+    const messageEl = UI.appendMessage('assistant', '');
+    const thinkingMsg = CONFIG.THINKING_MESSAGES[Math.floor(Math.random() * CONFIG.THINKING_MESSAGES.length)];
+    const contentEl = messageEl.querySelector('.message-content');
+    if (contentEl) {
+      contentEl.innerHTML = `<span class="thinking-text">${thinkingMsg}</span>`;
+    }
+    UI.scrollToBottom();
+
+    this._isStreaming = true;
+    UI.setInputEnabled(false);
+
+    try {
+      const response = await this._callWebhook(chatId, userMessage);
+
+      if (response) {
+        // Stream response — sẽ ghi đè thinking text
+        await this._handleResponse(chatId, response, messageEl);
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        console.log('[Chat] Request cancelled');
+        UI.updateMessageContent(messageEl, 'Đã hủy yêu cầu.', false);
+        Storage.updateLastMessage(chatId, 'Đã hủy yêu cầu.');
+      } else {
+        console.error('[Chat] Error:', err);
+        const errorMsg = 'Xin lỗi, mình đang gặp sự cố kỹ thuật. Bạn vui lòng thử lại sau nhé.';
+        UI.updateMessageContent(messageEl, errorMsg, false);
+        Storage.updateLastMessage(chatId, errorMsg);
+      }
+    } finally {
+      this._isStreaming = false;
+      UI.setInputEnabled(true);
+      UI.scrollToBottom();
+      Sidebar.refreshChatList();
+    }
+  },
+
+  /**
+   * Gọi N8N Webhook
+   */
+  async _callWebhook(chatId, message) {
+    this._abortController = new AbortController();
+
+    const response = await fetch(CONFIG.N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'sendMessage',
+        chatInput: message,
+        sessionId: chatId,
+      }),
+      signal: this._abortController.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook error: ${response.status}`);
+    }
+
+    return response;
+  },
+
+  /**
+   * Xử lý response — detect format và stream
+   */
+  async _handleResponse(chatId, response, messageEl) {
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let rawBuffer = '';
+    let fullContent = '';
+    let isN8nStream = false;
+    let chunkCount = 0;
+
+    // Giữ thinking text cho đến khi có dữ liệu thực
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        rawBuffer += chunk;
+        chunkCount++;
+
+        // Detect format từ chunk đầu tiên
+        if (chunkCount === 1) {
+          isN8nStream = rawBuffer.trim().startsWith('{"type":"');
+        }
+
+        if (isN8nStream) {
+          fullContent = this._parseN8nStreamChunks(rawBuffer);
+        } else {
+          fullContent = this._parseFullResponse(rawBuffer);
+        }
+
+        // Cập nhật UI realtime — chỉ khi có nội dung thực
+        if (fullContent.trim()) {
+          UI.updateMessageContent(messageEl, fullContent, true);
+          UI.scrollToBottom();
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    // Parse lần cuối
+    if (isN8nStream) {
+      fullContent = this._parseN8nStreamChunks(rawBuffer);
+    } else {
+      fullContent = this._parseFullResponse(rawBuffer);
+    }
+
+    console.log(`[Chat] ${isN8nStream ? 'Streamed' : 'Non-streaming'} - ${chunkCount} chunks`);
+
+    // Tắt streaming cursor, render final
+    UI.updateMessageContent(messageEl, fullContent, false);
+    Storage.updateLastMessage(chatId, fullContent);
+
+    if (this._containsDocSearch(fullContent)) {
+      Stats.trackEvent('search');
+    }
+  },
+
+  /**
+   * Parse N8N streaming format
+   * Mỗi dòng là 1 JSON: {"type":"item","content":"text",...}
+   * Ghép tất cả content từ type="item"
+   */
+  _parseN8nStreamChunks(rawText) {
+    let result = '';
+
+    // Tách từng JSON object (có thể xuống dòng hoặc nối liền)
+    // Pattern: mỗi {...} là 1 object
+    const jsonPattern = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
+    const matches = rawText.match(jsonPattern);
+
+    if (!matches) return rawText;
+
+    for (const jsonStr of matches) {
+      try {
+        const obj = JSON.parse(jsonStr);
+        if (obj.type === 'item' && obj.content !== undefined) {
+          result += obj.content;
+        }
+      } catch {
+        // JSON không hợp lệ (chunk bị cắt giữa chừng), bỏ qua
+      }
+    }
+
+    return result;
+  },
+
+  /**
+   * Parse response đầy đủ (non-streaming)
+   */
+  _parseFullResponse(rawText) {
+    const trimmed = rawText.trim();
+    try {
+      const json = JSON.parse(trimmed);
+      if (json.output) return json.output;
+      if (json.text) return json.text;
+      if (json.response) return json.response;
+      if (Array.isArray(json) && json.length > 0) {
+        return json[0].output || json[0].text || trimmed;
+      }
+    } catch {
+      // Có thể là text thuần
+    }
+    return trimmed;
+  },
+
+  /**
+   * Kiểm tra document search
+   */
+  _containsDocSearch(text) {
+    const indicators = ['Nguồn:', 'Tài liệu:', 'Theo tài liệu', 'vector_store'];
+    return indicators.some(keyword => text.includes(keyword));
+  },
+
+  cancelStream() {
+    if (this._abortController) {
+      this._abortController.abort();
+      this._abortController = null;
+    }
+    this._isStreaming = false;
+    UI.hideTypingIndicator();
+    UI.setInputEnabled(true);
+  },
+
+  isStreaming() {
+    return this._isStreaming;
+  },
+};
