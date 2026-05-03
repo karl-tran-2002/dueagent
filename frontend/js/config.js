@@ -3,11 +3,11 @@
  * Cấu hình chung cho ứng dụng
  */
 const CONFIG = {
-  // N8N Chat Trigger - qua proxy server để tránh CORS
-  N8N_WEBHOOK_URL: '/api/chat',
+  // N8N Chat Trigger - Gọi trực tiếp n8n cloud không cần proxy
+  N8N_WEBHOOK_URL: 'https://lyquocsu.app.n8n.cloud/webhook/a76ccf13-18d4-4077-ab49-ad35107c0ebb/chat',
   
   // N8N Track Event Webhook - Webhook duy nhất để đếm số liệu
-  N8N_TRACK_EVENT_URL: '', // Sẽ được inject từ server.js
+  N8N_TRACK_EVENT_URL: 'https://lyquocsu.app.n8n.cloud/webhook/track-event', 
 
   // Airtable config - thay đổi khi setup
   AIRTABLE: {
@@ -18,8 +18,8 @@ const CONFIG = {
 
   // Cấu hình Supabase
   SUPABASE: {
-    URL: '', // Sẽ được inject từ server.js
-    ANON_KEY: '' // Sẽ được inject từ server.js
+    URL: 'https://lnszuuhnysvbdwgbqral.supabase.co',
+    ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxuc3p1dWhueXN2YmR3Z2JxcmFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MjcxOTYsImV4cCI6MjA5MzMwMzE5Nn0.23cBU92cmySB6Q9ZyUiNlI6xIkIBhaRZjygmoifaVVc'
   },
 
   // App settings
