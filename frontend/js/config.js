@@ -4,12 +4,10 @@
  */
 const CONFIG = {
   // N8N Chat Trigger - qua proxy server để tránh CORS
-  // Khi deploy production, thay bằng URL trực tiếp hoặc proxy server
   N8N_WEBHOOK_URL: '/api/chat',
   
   // N8N Track Event Webhook - Webhook duy nhất để đếm số liệu
-  // Khi deploy, thay đổi URL này thành domain thật của n8n (VD: https://n8n.yourdomain.com/webhook/track-event)
-  N8N_TRACK_EVENT_URL: 'http://localhost:5678/webhook/track-event',
+  N8N_TRACK_EVENT_URL: '', // Sẽ được inject từ server.js
 
   // Airtable config - thay đổi khi setup
   AIRTABLE: {
@@ -20,8 +18,8 @@ const CONFIG = {
 
   // Cấu hình Supabase
   SUPABASE: {
-    URL: 'https://lnszuuhnysvbdwgbqral.supabase.co',
-    ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxuc3p1dWhueXN2YmR3Z2JxcmFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MjcxOTYsImV4cCI6MjA5MzMwMzE5Nn0.23cBU92cmySB6Q9ZyUiNlI6xIkIBhaRZjygmoifaVVc'
+    URL: '', // Sẽ được inject từ server.js
+    ANON_KEY: '' // Sẽ được inject từ server.js
   },
 
   // App settings

@@ -5,6 +5,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+// Đọc file .env nếu có
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 const PORT = process.env.PORT || 3000;
 const N8N_WEBHOOK = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/a76ccf13-18d4-4077-ab49-ad35107c0ebb/chat';
 
