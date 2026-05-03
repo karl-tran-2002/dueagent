@@ -62,6 +62,29 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Intercept config.js to inject environment variables dynamically
+  if (req.url === '/js/config.js') {
+    const configPath = path.join(__dirname, 'js/config.js');
+    fs.readFile(configPath, 'utf8', (err, data) => {
+      if (err) { res.writeHead(404); res.end('Not found'); return; }
+      let injectedData = data;
+      // Nếu có biến môi trường trên server, tự động ghi đè dòng hardcode
+      if (process.env.N8N_TRACK_EVENT_URL) {
+        injectedData = injectedData.replace(/N8N_TRACK_EVENT_URL:\s*'.*'/, `N8N_TRACK_EVENT_URL: '${process.env.N8N_TRACK_EVENT_URL}'`);
+      }
+      if (process.env.SUPABASE_URL) {
+        injectedData = injectedData.replace(/URL:\s*'.*'/, `URL: '${process.env.SUPABASE_URL}'`);
+      }
+      if (process.env.SUPABASE_ANON_KEY) {
+        injectedData = injectedData.replace(/ANON_KEY:\s*'.*'/, `ANON_KEY: '${process.env.SUPABASE_ANON_KEY}'`);
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+      res.end(injectedData);
+    });
+    return;
+  }
+
   // Static files
   let filePath = path.join(__dirname, req.url === '/' ? '/index.html' : req.url);
   const ext = path.extname(filePath);
