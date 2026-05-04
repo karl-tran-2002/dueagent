@@ -241,6 +241,9 @@ const Markdown = {
   _inline(text) {
     let html = this._escapeHtml(text);
 
+    // Khôi phục thẻ <br> (hữu ích cho việc xuống dòng trong table)
+    html = html.replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+
     // Bold + Italic: ***text***
     html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
 
