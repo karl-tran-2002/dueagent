@@ -51,7 +51,8 @@ body {
   font-family: var(--font-main);
   background: var(--bg-main);
   color: var(--text-primary);
-  height: 100vh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
@@ -476,6 +477,7 @@ button {
 
 /* Messages */
 .message {
+  box-sizing: border-box;
   display: flex;
   gap: 12px;
   width: 100%;
@@ -830,6 +832,7 @@ button {
 
 /* Typing indicator */
 .typing-indicator {
+  box-sizing: border-box;
   display: flex;
   gap: 12px;
   width: 100%;
