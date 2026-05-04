@@ -1239,7 +1239,7 @@ button {
   .message-assistant {
     display: grid;
     grid-template-columns: 32px 1fr;
-    gap: 4px 10px;
+    gap: 12px 10px; /* Tăng khoảng cách dòng giữa tên và tin nhắn */
   }
   
   .message-assistant .message-body {
@@ -1269,7 +1269,7 @@ button {
   .typing-indicator {
     display: grid;
     grid-template-columns: 32px 1fr;
-    gap: 4px 10px;
+    gap: 12px 10px;
   }
 
   .typing-content {
