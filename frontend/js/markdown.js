@@ -134,8 +134,24 @@ const Markdown = {
       const cells = parseRow(tableLines[i]);
       html += '<tr>';
       for (let j = 0; j < headers.length; j++) {
-        const cellContent = cells[j] ? this._inline(cells[j]) : '';
-        html += `<td>${cellContent}</td>`;
+        let cellText = cells[j] ? cells[j].trim() : '';
+        // Chuyển đổi <br> thành newline để parse như một khối markdown hoàn chỉnh
+        cellText = cellText.replace(/<br\s*\/?>/gi, '\n');
+        
+        let cellHtml = '';
+        if (cellText.includes('\n')) {
+          const lines = cellText.split('\n');
+          cellHtml = this._parseBlocks(lines, 0, lines.length);
+        } else {
+          // Xử lý list item ngay cả khi chỉ có 1 dòng (ví dụ: "- Item")
+          if (this._isListItem(cellText)) {
+            cellHtml = this._parseBlocks([cellText], 0, 1);
+          } else {
+            cellHtml = this._inline(cellText);
+          }
+        }
+        
+        html += `<td>${cellHtml}</td>`;
       }
       html += '</tr>';
     }
@@ -145,10 +161,10 @@ const Markdown = {
   },
 
   /**
-   * Kiểm tra list item (-, *, +, 1.)
+   * Kiểm tra list item (-, *, +, 1., –, —)
    */
   _isListItem(line) {
-    return /^[-*+]\s/.test(line) || /^\d+[.)]\s/.test(line);
+    return /^[-*+–—]\s/.test(line) || /^\d+[.)]\s/.test(line);
   },
 
   /**
@@ -178,7 +194,7 @@ const Markdown = {
       if (currentIndent === baseIndent && this._isListItem(trimmed)) {
         const content = isOrdered
           ? trimmed.replace(/^\d+[.)]\s*/, '')
-          : trimmed.replace(/^[-*+]\s*/, '');
+          : trimmed.replace(/^[-*+–—]\s*/, '');
         items.push({ content: this._inline(content), children: '' });
         i++;
         continue;
