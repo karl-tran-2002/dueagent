@@ -67,6 +67,21 @@ const Markdown = {
         continue;
       }
 
+      // Table
+      if (trimmed.startsWith('|')) {
+        const tableLines = [];
+        while (i < end && lines[i].trim().startsWith('|')) {
+          tableLines.push(lines[i].trim());
+          i++;
+        }
+        if (tableLines.length >= 2 && tableLines[1].indexOf('-') !== -1) {
+          blocks.push(this._parseTable(tableLines));
+        } else {
+          blocks.push(`<p>${tableLines.map(l => this._inline(l)).join('<br>')}</p>`);
+        }
+        continue;
+      }
+
       // List (unordered: - * +, ordered: 1.)
       if (this._isListItem(trimmed)) {
         const result = this._parseList(lines, i, end);
@@ -80,7 +95,7 @@ const Markdown = {
       while (i < end) {
         const pl = lines[i].trim();
         if (pl === '' || pl.startsWith('```') || pl.match(/^#{1,4}\s/) ||
-            this._isListItem(pl) || pl.startsWith('> ') || /^[-*_]{3,}\s*$/.test(pl)) {
+            this._isListItem(pl) || pl.startsWith('> ') || /^[-*_]{3,}\s*$/.test(pl) || pl.startsWith('|')) {
           break;
         }
         paraLines.push(pl);
@@ -92,6 +107,41 @@ const Markdown = {
     }
 
     return blocks.join('\n');
+  },
+
+  /**
+   * Parse Markdown Table
+   */
+  _parseTable(tableLines) {
+    if (tableLines.length < 2) return '';
+    
+    const parseRow = (rowStr) => {
+      const cells = rowStr.split('|');
+      if (cells.length > 0 && cells[0].trim() === '') cells.shift();
+      if (cells.length > 0 && cells[cells.length - 1].trim() === '') cells.pop();
+      return cells.map(c => c.trim());
+    };
+
+    const headers = parseRow(tableLines[0]);
+    
+    let html = '<div class="table-container"><table class="markdown-table"><thead><tr>';
+    headers.forEach(h => {
+      html += `<th>${this._inline(h)}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    
+    for (let i = 2; i < tableLines.length; i++) {
+      const cells = parseRow(tableLines[i]);
+      html += '<tr>';
+      for (let j = 0; j < headers.length; j++) {
+        const cellContent = cells[j] ? this._inline(cells[j]) : '';
+        html += `<td>${cellContent}</td>`;
+      }
+      html += '</tr>';
+    }
+    
+    html += '</tbody></table></div>';
+    return html;
   },
 
   /**

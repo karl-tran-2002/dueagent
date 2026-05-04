@@ -4,12 +4,25 @@
  */
 const Storage = {
   /**
+   * Tạo UUID có fallback cho trình duyệt không hỗ trợ crypto.randomUUID
+   */
+  generateUUID() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  },
+
+  /**
    * Lấy hoặc tạo visitor ID
    */
   getVisitorId() {
     let id = localStorage.getItem(CONFIG.STORAGE_KEYS.VISITOR_ID);
     if (!id) {
-      id = 'visitor_' + crypto.randomUUID();
+      id = 'visitor_' + this.generateUUID();
       localStorage.setItem(CONFIG.STORAGE_KEYS.VISITOR_ID, id);
     }
     return id;
@@ -44,7 +57,7 @@ const Storage = {
    * Tạo cuộc trò chuyện mới
    */
   createChat() {
-    const chatId = 'chat_' + crypto.randomUUID();
+    const chatId = 'chat_' + this.generateUUID();
     const chat = {
       id: chatId,
       title: 'Cuộc trò chuyện mới',
