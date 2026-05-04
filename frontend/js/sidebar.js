@@ -4,12 +4,13 @@
  * Sử dụng Event Delegation để đảm bảo dynamic elements luôn hoạt động
  */
 const Sidebar = {
-  _isOpen: true,
+  _isOpen: false,
 
   /**
    * Khởi tạo sidebar
    */
   init() {
+    this._isOpen = window.innerWidth > 768;
     this.refreshChatList();
     this._bindEvents();
   },
