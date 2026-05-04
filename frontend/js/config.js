@@ -32,7 +32,7 @@ const CONFIG = {
   WELCOME_MESSAGE: `Mình có thể giúp bạn:
 - Tư vấn thông tin tuyển sinh
 - Giải đáp về chương trình Quản trị nguồn nhân lực
-- Hỗ trợ các vấn đề về quy chế đào tạo
+- Cung cấp thông tin về quy chế đào tạo
 - Cung cấp thông tin về học bổng, rèn luyện và các quy định dành cho sinh viên`,
 
   // localStorage keys
