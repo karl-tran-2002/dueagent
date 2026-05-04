@@ -93,7 +93,7 @@ const UI = {
       this.appendMessage(msg.role, msg.content);
     });
 
-    this.scrollToBottom();
+    this.scrollToBottom(true);
   },
 
   /**
@@ -201,7 +201,7 @@ const UI = {
       </div>
     `;
     messagesEl.appendChild(indicator);
-    this.scrollToBottom();
+    this.scrollToBottom(true);
   },
 
   /**
@@ -236,13 +236,22 @@ const UI = {
   },
 
   /**
-   * Scroll xuống cuối
+   * Scroll xuống cuối (Có chống Scroll-Jacking và Smooth Scrolling)
    */
-  scrollToBottom() {
+  scrollToBottom(force = false) {
     const messagesEl = document.getElementById('chat-messages');
     if (messagesEl) {
       requestAnimationFrame(() => {
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+        // Kiểm tra xem người dùng có đang ở gần đáy màn hình không (cách đáy dưới 150px)
+        const isNearBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 150;
+        
+        // Chỉ cuộn nếu bị force (như gửi tin nhắn mới) hoặc đang ở gần đáy
+        if (force || isNearBottom) {
+          messagesEl.scrollTo({
+            top: messagesEl.scrollHeight,
+            behavior: force ? 'smooth' : 'auto' // Stream thì auto để mượt rAF, force thì trượt smooth
+          });
+        }
       });
     }
   },

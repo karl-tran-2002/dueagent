@@ -19,7 +19,7 @@ const Chat = {
     Storage.addMessage(chatId, 'user', userMessage);
     UI.appendMessage('user', userMessage);
     UI.clearInput();
-    UI.scrollToBottom();
+    UI.scrollToBottom(true); // Force cuộn khi gửi tin nhắn
 
     // Theo dõi câu hỏi
     Stats.trackEvent('message');
@@ -32,7 +32,7 @@ const Chat = {
     if (contentEl) {
       contentEl.innerHTML = `<span class="thinking-text">${thinkingMsg}</span>`;
     }
-    UI.scrollToBottom();
+    UI.scrollToBottom(true); // Force cuộn khi hiện thinking text
 
     this._isStreaming = true;
     UI.setInputEnabled(false);
@@ -58,7 +58,7 @@ const Chat = {
     } finally {
       this._isStreaming = false;
       UI.setInputEnabled(true);
-      UI.scrollToBottom();
+      UI.scrollToBottom(true);
       Sidebar.refreshChatList();
     }
   },
@@ -97,6 +97,7 @@ const Chat = {
     let fullContent = '';
     let isN8nStream = false;
     let chunkCount = 0;
+    let rAF_id = null; // Biến lưu ID của requestAnimationFrame
 
     // Giữ thinking text cho đến khi có dữ liệu thực
 
@@ -120,15 +121,20 @@ const Chat = {
           fullContent = this._parseFullResponse(rawBuffer);
         }
 
-        // Cập nhật UI realtime — chỉ khi có nội dung thực
-        if (fullContent.trim()) {
-          UI.updateMessageContent(messageEl, fullContent, true);
-          UI.scrollToBottom();
+        // Đồng bộ UI với tần số quét của màn hình (rAF) thay vì Throttle thời gian
+        if (fullContent.trim() && !rAF_id) {
+          rAF_id = requestAnimationFrame(() => {
+            UI.updateMessageContent(messageEl, fullContent, true);
+            UI.scrollToBottom(false); // Không force cuộn để chống scroll-jacking
+            rAF_id = null;
+          });
         }
       }
     } finally {
       reader.releaseLock();
     }
+
+    if (rAF_id) cancelAnimationFrame(rAF_id);
 
     // Parse lần cuối
     if (isN8nStream) {
@@ -142,6 +148,7 @@ const Chat = {
     // Tắt streaming cursor, render final
     UI.updateMessageContent(messageEl, fullContent, false);
     Storage.updateLastMessage(chatId, fullContent);
+    UI.scrollToBottom(true); // Force cuộn lần cuối khi hoàn tất
 
     if (this._containsDocSearch(fullContent)) {
       Stats.trackEvent('search');
