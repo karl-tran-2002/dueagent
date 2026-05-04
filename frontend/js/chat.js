@@ -98,6 +98,7 @@ const Chat = {
     let isN8nStream = false;
     let chunkCount = 0;
     let rAF_id = null; // Biến lưu ID của requestAnimationFrame
+    let lastStorageTime = 0; // Thêm biến throttle cho Storage
 
     // Giữ thinking text cho đến khi có dữ liệu thực
 
@@ -124,8 +125,23 @@ const Chat = {
         // Đồng bộ UI với tần số quét của màn hình (rAF) thay vì Throttle thời gian
         if (fullContent.trim() && !rAF_id) {
           rAF_id = requestAnimationFrame(() => {
-            UI.updateMessageContent(messageEl, fullContent, true);
-            UI.scrollToBottom(false); // Không force cuộn để chống scroll-jacking
+            // 1. Chỉ cập nhật giao diện nếu người dùng đang mở đúng cuộc trò chuyện này
+            if (Storage.getActiveChat() === chatId) {
+              // Tìm element tin nhắn mới nhất vì DOM có thể đã bị làm mới khi người dùng chuyển qua lại
+              const currentMessages = document.querySelectorAll('.message-assistant');
+              const activeEl = currentMessages.length > 0 ? currentMessages[currentMessages.length - 1] : messageEl;
+              
+              UI.updateMessageContent(activeEl, fullContent, true);
+              UI.scrollToBottom(false); // Không force cuộn để chống scroll-jacking
+            }
+
+            // 2. Liên tục lưu tạm vào Storage (mỗi 500ms để tránh giật lag do ghi ổ đĩa)
+            const now = Date.now();
+            if (now - lastStorageTime > 500) {
+              Storage.updateLastMessage(chatId, fullContent);
+              lastStorageTime = now;
+            }
+
             rAF_id = null;
           });
         }
@@ -146,9 +162,16 @@ const Chat = {
     console.log(`[Chat] ${isN8nStream ? 'Streamed' : 'Non-streaming'} - ${chunkCount} chunks`);
 
     // Tắt streaming cursor, render final
-    UI.updateMessageContent(messageEl, fullContent, false);
     Storage.updateLastMessage(chatId, fullContent);
-    UI.scrollToBottom(true); // Force cuộn lần cuối khi hoàn tất
+    
+    // Chỉ cập nhật DOM lần cuối nếu vẫn đang mở chat này
+    if (Storage.getActiveChat() === chatId) {
+      const currentMessages = document.querySelectorAll('.message-assistant');
+      const activeEl = currentMessages.length > 0 ? currentMessages[currentMessages.length - 1] : messageEl;
+      
+      UI.updateMessageContent(activeEl, fullContent, false);
+      UI.scrollToBottom(true); // Force cuộn lần cuối khi hoàn tất
+    }
 
     if (this._containsDocSearch(fullContent)) {
       Stats.trackEvent('search');
