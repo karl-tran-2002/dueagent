@@ -5,7 +5,7 @@
 const CONFIG = {
   // N8N Chat Trigger - qua proxy server để tránh CORS
   N8N_WEBHOOK_URL: '', // Sẽ được inject từ Vercel Serverless Function
-  
+
   // N8N Track Event Webhook - Webhook duy nhất để đếm số liệu
   N8N_TRACK_EVENT_URL: '', // Sẽ được inject từ Vercel Serverless Function
 
@@ -50,12 +50,19 @@ Hãy hỏi mình bất cứ điều gì bạn muốn biết!`,
 
   // Thinking messages - random hiển thị khi chờ streaming
   THINKING_MESSAGES: [
-    'Chờ mình chút...',
-    'Cho Tommy vài giây...',
     'Chờ Tommy chút...',
+    'Cho mình vài giây...',
+    'Mình đang phân tích...',
+    'Não Tommy đang bốc khói, mau gọi xe cứu hỏa...',
     'Để mình xem nào...',
+    'Đang tải trí thông minh... 99% rồi, 1% cuối hơi lâu...',
+    'Chờ xíu, Tommy đi pha thêm cốc cafe cho tỉnh táo để nghĩ tiếp...',
+    'Đừng giục, Tommy mà cuống là rơi chữ đấy...',
+    'Tommy đang lục tìm..',
     'Tommy đang xử lý...',
     'Tommy đang suy nghĩ...',
-    'Mình đang kiểm tra...',
+    'Tommy đang vắt óc phân tích...',
+    'Tommy đang vò đầu bứt tai, sắp ra rồi đây...',
+    'Tommy đang gửi tín hiệu lên sao Hỏa để hỏi ý kiến...',
   ],
 };
