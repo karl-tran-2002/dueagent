@@ -1157,7 +1157,8 @@ button {
   z-index: 100;
 }
 
-.sidebar-stat-item:hover::after {
+.sidebar-stat-item:hover::after,
+.sidebar-stat-item:focus::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
