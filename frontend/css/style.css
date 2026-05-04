@@ -1169,11 +1169,13 @@ button {
   background: rgba(0, 0, 0, 0.5);
   z-index: 19;
   opacity: 0;
+  pointer-events: none; /* Thêm dòng này để không chặn click khi bị ẩn */
   transition: opacity var(--transition);
 }
 
 .sidebar-overlay.visible {
   opacity: 1;
+  pointer-events: auto; /* Trả lại sự kiện click khi hiện */
 }
 
 /* === Responsive === */
