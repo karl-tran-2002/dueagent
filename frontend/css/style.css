@@ -76,7 +76,8 @@ button {
 /* === Layout === */
 .app-container {
   display: flex;
-  height: 100vh;
+  height: 100vh; /* Fallback cho các trình duyệt cũ */
+  height: 100dvh; /* Kích thước động chuẩn xác cho Safari/iOS (trừ hao thanh toolbar) */
   position: relative;
 }
 
