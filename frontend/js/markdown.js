@@ -161,10 +161,10 @@ const Markdown = {
   },
 
   /**
-   * Kiểm tra list item (-, *, +, 1., –, —)
+   * Kiểm tra list item (-, *, +, 1., –, —, •, ●, ▪, ⁃)
    */
   _isListItem(line) {
-    return /^[-*+–—]\s/.test(line) || /^\d+[.)]\s/.test(line);
+    return /^[-*+–—•●▪⁃]\s/.test(line) || /^\d+[.)]\s/.test(line);
   },
 
   /**
@@ -194,7 +194,7 @@ const Markdown = {
       if (currentIndent === baseIndent && this._isListItem(trimmed)) {
         const content = isOrdered
           ? trimmed.replace(/^\d+[.)]\s*/, '')
-          : trimmed.replace(/^[-*+–—]\s*/, '');
+          : trimmed.replace(/^[-*+–—•●▪⁃]\s*/, '');
         items.push({ content: this._inline(content), children: '' });
         i++;
         continue;
