@@ -110,10 +110,11 @@ const UI = {
         <!-- <p class="welcome-subtitle">Trợ lý tư vấn ngành Quản trị nguồn nhân lực - Trường ĐH Kinh tế, ĐHĐN</p> -->
         <div class="welcome-message">${Markdown.render(CONFIG.WELCOME_MESSAGE)}</div>
         <div class="welcome-suggestions">
-          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">Giới thiệu về ngành QTNL</button>
-          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">Điểm chuẩn tuyển sinh năm nay</button>
-          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">Chương trình đào tạo ngành QTNL</button>
-          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">Học bổng dành cho sinh viên</button>
+          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">DUE năm 2026 có bao nhiêu phương thức xét tuyển?</button>
+          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">Sinh viên tốt nghiệp ngành QTNL có thể làm những vị trí gì?</button>
+          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">DUE có những loại học bổng nào dành cho sinh viên chính quy?</button>
+          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">Mục tiêu đào tạo của chương trình Quản trị nguồn nhân lực là gì?</button>
+          <button class="suggestion-chip" onclick="UI.useSuggestion(this)">So sánh chương trình Bán phần tiếng Anh và chương trình Tiêu chuẩn của ngành QTNL?</button>
         </div>
       </div>
     `;

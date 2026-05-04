@@ -29,13 +29,11 @@ const CONFIG = {
   USER_AVATAR: '👤',
 
   // Welcome message
-  WELCOME_MESSAGE: `Tommy có thể giúp bạn:
-- Tư vấn thông tin **tuyển sinh** ngành Quản Trị Nhân Lực
-- Giải đáp về **chương trình đào tạo**, tín chỉ
-- Hỗ trợ các vấn đề **học vụ** cho sinh viên
-- Cung cấp thông tin về **học bổng**, hoạt động
-
-Hãy hỏi mình bất cứ điều gì bạn muốn biết!`,
+  WELCOME_MESSAGE: `Mình có thể giúp bạn:
+- Tư vấn thông tin tuyển sinh
+- Giải đáp về chương trình Quản trị nguồn nhân lực
+- Hỗ trợ các vấn đề về quy chế đào tạo
+- Cung cấp thông tin về học bổng, rèn luyện và các quy định dành cho sinh viên`,
 
   // localStorage keys
   STORAGE_KEYS: {
@@ -52,17 +50,17 @@ Hãy hỏi mình bất cứ điều gì bạn muốn biết!`,
   THINKING_MESSAGES: [
     'Chờ Tommy chút...',
     'Cho mình vài giây...',
-    'Mình đang phân tích...',
-    'Não Tommy đang bốc khói, mau gọi xe cứu hỏa...',
     'Để mình xem nào...',
-    'Đang tải trí thông minh... 99% rồi, 1% cuối hơi lâu...',
-    'Chờ xíu, Tommy đi pha thêm cốc cafe cho tỉnh táo để nghĩ tiếp...',
-    'Đừng giục, Tommy mà cuống là rơi chữ đấy...',
+    'Mình đang phân tích...',
+    'Tommy đang gửi tín hiệu lên sao Hỏa để hỏi ý kiến...',
     'Tommy đang lục tìm..',
     'Tommy đang xử lý...',
     'Tommy đang suy nghĩ...',
+    'Đang tải trí thông minh... 99% rồi, 1% cuối hơi lâu...',
+    'Não Tommy đang bốc khói, mau gọi xe cứu hỏa...',
+    'Chờ xíu, Tommy đi pha thêm cốc cafe cho tỉnh táo để nghĩ tiếp...',
+    'Đừng giục, Tommy mà cuống là rơi chữ đấy...',
     'Tommy đang vắt óc phân tích...',
     'Tommy đang vò đầu bứt tai, sắp ra rồi đây...',
-    'Tommy đang gửi tín hiệu lên sao Hỏa để hỏi ý kiến...',
   ],
 };
