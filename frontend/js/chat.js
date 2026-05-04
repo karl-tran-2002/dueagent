@@ -21,9 +21,6 @@ const Chat = {
     UI.clearInput();
     UI.scrollToBottom(true); // Force cuộn khi gửi tin nhắn
 
-    // Theo dõi câu hỏi
-    Stats.trackEvent('message');
-
     // Tạo tin nhắn agent với thinking text ngay lập tức
     Storage.addMessage(chatId, 'assistant', '');
     const messageEl = UI.appendMessage('assistant', '');
@@ -51,9 +48,15 @@ const Chat = {
         Storage.updateLastMessage(chatId, 'Đã hủy yêu cầu.');
       } else {
         console.error('[Chat] Error:', err);
-        const errorMsg = 'Xin lỗi, mình đang gặp sự cố kỹ thuật. Bạn vui lòng thử lại sau nhé.';
-        UI.updateMessageContent(messageEl, errorMsg, false);
+        const errorMsg = 'Xin lỗi, Tommy đang gặp sự cố. Bạn vui lòng thử lại sau nhé.';
+        
         Storage.updateLastMessage(chatId, errorMsg);
+        
+        if (Storage.getActiveChat() === chatId) {
+          const currentMessages = document.querySelectorAll('.message-assistant');
+          const activeEl = currentMessages.length > 0 ? currentMessages[currentMessages.length - 1] : messageEl;
+          UI.updateMessageContent(activeEl, errorMsg, false);
+        }
       }
     } finally {
       this._isStreaming = false;
@@ -172,10 +175,6 @@ const Chat = {
       UI.updateMessageContent(activeEl, fullContent, false);
       UI.scrollToBottom(true); // Force cuộn lần cuối khi hoàn tất
     }
-
-    if (this._containsDocSearch(fullContent)) {
-      Stats.trackEvent('search');
-    }
   },
 
   /**
@@ -214,14 +213,31 @@ const Chat = {
     const trimmed = rawText.trim();
     try {
       const json = JSON.parse(trimmed);
+      
+      // Bắt lỗi trả về từ N8N dạng JSON
+      if (json.message && typeof json.message === 'string' && json.message.toLowerCase().includes('error')) {
+        throw new Error(json.message);
+      }
+      
       if (json.output) return json.output;
       if (json.text) return json.text;
       if (json.response) return json.response;
       if (Array.isArray(json) && json.length > 0) {
         return json[0].output || json[0].text || trimmed;
       }
-    } catch {
-      // Có thể là text thuần
+    } catch (err) {
+      // Nếu không phải là JSON (Text thuần)
+      if (err instanceof SyntaxError) {
+        const errorPatterns = ['error code:', 'no available server', 'bad gateway', 'gateway time-out', 'internal server error', '<html'];
+        const lowerText = trimmed.toLowerCase();
+        
+        // Nếu text ngắn và chứa từ khóa lỗi -> Chắc chắn là lỗi từ Proxy/Vercel
+        if (trimmed.length < 250 && errorPatterns.some(pattern => lowerText.includes(pattern))) {
+          throw new Error(`Raw Proxy Error: ${trimmed}`);
+        }
+      } else {
+        throw err; // Ném lại lỗi nếu đó là lỗi do JSON.parse ném ra từ json.message
+      }
     }
     return trimmed;
   },
