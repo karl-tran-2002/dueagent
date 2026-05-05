@@ -79,6 +79,7 @@ const Chat = {
         action: 'sendMessage',
         chatInput: message,
         sessionId: chatId,
+        messageId: Storage.generateMessageId(message),
       }),
       signal: this._abortController.signal,
     });
