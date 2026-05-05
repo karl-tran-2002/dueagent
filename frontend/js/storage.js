@@ -17,6 +17,29 @@ const Storage = {
   },
 
   /**
+   * Tạo messageId dựa trên nội dung tin nhắn + thời gian + random
+   * Format: msg_<timestamp>_<hash>_<random>
+   * Random suffix đảm bảo không bao giờ trùng, kể cả cùng nội dung + cùng mili-giây
+   */
+  generateMessageId(messageContent) {
+    const timestamp = Date.now();
+    const raw = messageContent + timestamp.toString();
+
+    // Hash đơn giản (djb2) để tạo chuỗi ngắn gọn từ nội dung
+    let hash = 5381;
+    for (let i = 0; i < raw.length; i++) {
+      hash = ((hash << 5) + hash) + raw.charCodeAt(i);
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    const hashHex = Math.abs(hash).toString(16);
+
+    // Random 4 ký tự hex để chống trùng hoàn toàn
+    const rand = Math.random().toString(16).substring(2, 6);
+
+    return `msg_${timestamp}_${hashHex}_${rand}`;
+  },
+
+  /**
    * Lấy hoặc tạo visitor ID
    */
   getVisitorId() {

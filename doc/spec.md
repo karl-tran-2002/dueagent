@@ -196,7 +196,8 @@ Content-Type: application/json
 {
   "action": "sendMessage",
   "chatInput": "Câu hỏi của user",
-  "sessionId": "chat_<uuid>"
+  "sessionId": "chat_<uuid>",
+  "messageId": "msg_<timestamp>_<hash>_<random>"
 }
 
 Response: Streaming text (chunked transfer encoding)
