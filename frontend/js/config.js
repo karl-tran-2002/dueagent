@@ -61,7 +61,7 @@ const CONFIG = {
     'Đang tải trí thông minh...99% rồi, 1% cuối hơi lâu',
     'Não mình đang bốc khói, mau gọi xe cứu hỏa!',
     'Chờ xíu, mình pha thêm cốc cafe cho tỉnh táo',
-    'Đừng giục, Mình mà cuống là rơi chữ đấy!',
+    'Đừng giục, mình mà cuống là rơi chữ đấy!',
     'Mình đang vắt óc phân tích...',
     'Mình đang vò đầu bứt tai...',
   ],
