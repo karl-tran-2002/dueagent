@@ -106,7 +106,7 @@ const UI = {
     messagesEl.innerHTML = `
       <div class="welcome-container">
         <div class="welcome-avatar"><img src="assets/chatbot_logo.png" alt="AI Chatbot K17 DUE" style="width:50px;height:50px;object-fit:contain;"></div>
-        <h2 class="welcome-title">Xin chào! Mình là ${CONFIG.AGENT_NAME}</h2>
+        <h2 class="welcome-title">Xin chào! Mình là AI Chatbot K17 DUE </h2>
         <!-- <p class="welcome-subtitle">Trợ lý tư vấn ngành Quản trị nguồn nhân lực - Trường ĐH Kinh tế, ĐHĐN</p> -->
         <div class="welcome-message">${Markdown.render(CONFIG.WELCOME_MESSAGE)}</div>
         <div class="welcome-suggestions">
