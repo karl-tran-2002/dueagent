@@ -24,7 +24,7 @@ const CONFIG = {
 
   // App settings
   APP_NAME: 'DUE Agent',
-  AGENT_NAME: 'AI Chatbot K17 DUE',
+  AGENT_NAME: 'Bot',
   AGENT_AVATAR: '🎓',
   USER_AVATAR: '👤',
 
