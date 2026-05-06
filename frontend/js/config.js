@@ -24,7 +24,7 @@ const CONFIG = {
 
   // App settings
   APP_NAME: 'DUE Agent',
-  AGENT_NAME: 'Tommy',
+  AGENT_NAME: 'AI Chatbot K17 DUE',
   AGENT_AVATAR: '🎓',
   USER_AVATAR: '👤',
 
@@ -49,20 +49,20 @@ const CONFIG = {
 
   // Thinking messages - random hiển thị khi chờ streaming
   THINKING_MESSAGES: [
-    'Chờ Tommy chút...',
+    'Chờ mình chút...',
     'Cho mình vài giây...',
     'Để mình xem nào...',
     'Mình đang phân tích...',
-    'Tommy đang gửi tín hiệu lên sao Hỏa để hỏi ý kiến...',
-    'Tommy đang lục tìm..',
-    'Tommy đang xử lý...',
-    'Tommy đang suy nghĩ...',
-    'Tommy đang cháy máy',
+    'Mình đang gửi tín hiệu lên sao Hỏa để hỏi ý kiến...',
+    'Mình đang lục tìm..',
+    'Mình đang xử lý...',
+    'Mình đang suy nghĩ...',
+    'Mình đang cháy máy',
     'Đang tải trí thông minh...99% rồi, 1% cuối hơi lâu',
-    'Não Tommy đang bốc khói, mau gọi xe cứu hỏa!',
-    'Chờ xíu, Tommy đi pha thêm cốc cafe cho tỉnh táo',
-    'Đừng giục, Tommy mà cuống là rơi chữ đấy!',
-    'Tommy đang vắt óc phân tích',
-    'Tommy đang vò đầu bứt tai',
+    'Não Mình đang bốc khói, mau gọi xe cứu hỏa!',
+    'Chờ xíu, Mình đi pha thêm cốc cafe cho tỉnh táo',
+    'Đừng giục, Mình mà cuống là rơi chữ đấy!',
+    'Mình đang vắt óc phân tích',
+    'Mình đang vò đầu bứt tai',
   ],
 };

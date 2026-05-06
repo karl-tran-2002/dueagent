@@ -54,7 +54,7 @@ const Chat = {
         UI.showRateLimitToast(err.message);
       } else {
         console.error('[Chat] Error:', err);
-        const errorMsg = 'Xin lỗi, Tommy đang gặp sự cố. Bạn vui lòng thử lại sau nhé.';
+        const errorMsg = 'Xin lỗi, mình đang gặp sự cố. Bạn vui lòng thử lại sau nhé.';
         
         Storage.updateLastMessage(chatId, errorMsg);
         

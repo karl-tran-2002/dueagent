@@ -105,7 +105,7 @@ const UI = {
 
     messagesEl.innerHTML = `
       <div class="welcome-container">
-        <div class="welcome-avatar"><img src="assets/chatbot_logo.png" alt="Tommy" style="width:50px;height:50px;object-fit:contain;"></div>
+        <div class="welcome-avatar"><img src="assets/chatbot_logo.png" alt="AI Chatbot K17 DUE" style="width:50px;height:50px;object-fit:contain;"></div>
         <h2 class="welcome-title">Xin chào! Mình là ${CONFIG.AGENT_NAME}</h2>
         <!-- <p class="welcome-subtitle">Trợ lý tư vấn ngành Quản trị nguồn nhân lực - Trường ĐH Kinh tế, ĐHĐN</p> -->
         <div class="welcome-message">${Markdown.render(CONFIG.WELCOME_MESSAGE)}</div>
@@ -145,7 +145,7 @@ const UI = {
     const messageEl = document.createElement('div');
     messageEl.className = `message message-${role}`;
 
-    const avatar = role === 'user' ? `<img src="assets/people.png" alt="Bạn" style="width:100%;height:100%;object-fit:contain;">` : `<img src="assets/robot2.png" alt="Tommy" style="width:100%;height:100%;object-fit:contain;">`;
+    const avatar = role === 'user' ? `<img src="assets/people.png" alt="Bạn" style="width:100%;height:100%;object-fit:contain;">` : `<img src="assets/robot2.png" alt="AI Chatbot K17 DUE" style="width:100%;height:100%;object-fit:contain;">`;
     const name = role === 'user' ? 'Bạn' : CONFIG.AGENT_NAME;
 
     messageEl.innerHTML = `
@@ -193,7 +193,7 @@ const UI = {
     indicator.className = 'typing-indicator';
     indicator.id = 'typing-indicator';
     indicator.innerHTML = `
-      <div class="message-avatar"><img src="assets/robot2.png" alt="Tommy" style="width:100%;height:100%;object-fit:contain;"></div>
+      <div class="message-avatar"><img src="assets/robot2.png" alt="AI Chatbot K17 DUE" style="width:100%;height:100%;object-fit:contain;"></div>
       <div class="typing-content">
         <div class="thinking-text">${thinkingMsg}</div>
         <div class="typing-dots">
