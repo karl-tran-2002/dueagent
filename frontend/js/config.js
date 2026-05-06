@@ -40,6 +40,7 @@ const CONFIG = {
     CHATS: 'due_agent_chats',
     ACTIVE_CHAT: 'due_agent_active_chat',
     VISITOR_ID: 'due_agent_visitor_id',
+    USER_ID: 'due_agent_user_id', // userId = fingerprint + UUID (dùng cho rate limiting)
   },
 
   // Limits

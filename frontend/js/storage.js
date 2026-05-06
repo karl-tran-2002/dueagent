@@ -40,6 +40,108 @@ const Storage = {
   },
 
   /**
+   * Tạo browser fingerprint từ các thuộc tính máy/trình duyệt
+   * Không dùng thư viện ngoài — dùng SubtleCrypto SHA-256
+   * @returns {Promise<string|null>} "fp_{12hex}" hoặc null nếu browser block
+   */
+  async _generateFingerprint() {
+    try {
+      const parts = [];
+
+      // 1. User Agent
+      parts.push(navigator.userAgent);
+
+      // 2. Ngôn ngữ
+      parts.push(navigator.language || navigator.languages?.join(',') || '');
+
+      // 3. Màn hình
+      parts.push(`${screen.width}x${screen.height}x${screen.colorDepth}`);
+
+      // 4. Timezone (ổn định hơn getTimezoneOffset)
+      parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+
+      // 5. Số CPU cores
+      parts.push(String(navigator.hardwareConcurrency || 'unknown'));
+
+      // 6. RAM (GB, chỉ có trên Chrome)
+      parts.push(String(navigator.deviceMemory || 'unknown'));
+
+      // 7. Platform
+      parts.push(navigator.platform || 'unknown');
+
+      // 8. Canvas fingerprint (mỗi GPU/font render hơi khác nhau)
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 220;
+        canvas.height = 50;
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial, sans-serif';
+        ctx.fillStyle = '#1a5276';
+        ctx.fillText('DUE Agent \uD83C\uDF93 fp', 2, 4);
+        ctx.fillStyle = 'rgba(52, 152, 219, 0.8)';
+        ctx.font = '11px Georgia, serif';
+        ctx.fillText('Qu\u1ea3n tr\u1ecb Nh\u00e2n l\u1ef1c 2026', 4, 22);
+        // Lấy 80 ký tự cuối của dataURL (phần pixel data)
+        parts.push(canvas.toDataURL().slice(-80));
+      } catch {
+        parts.push('canvas_blocked');
+      }
+
+      // 9. WebGL renderer (GPU info — rất ổn định)
+      try {
+        const gl = document.createElement('canvas').getContext('webgl');
+        if (gl) {
+          const ext = gl.getExtension('WEBGL_debug_renderer_info');
+          if (ext) {
+            parts.push(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL));
+            parts.push(gl.getParameter(ext.UNMASKED_VENDOR_WEBGL));
+          }
+        }
+      } catch {
+        parts.push('webgl_blocked');
+      }
+
+      // Hash toàn bộ bằng SHA-256
+      const raw = parts.join('|||');
+      const encoded = new TextEncoder().encode(raw);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+      const hashHex = Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      return 'fp_' + hashHex.substring(0, 12);
+    } catch {
+      return null; // Browser quá hạn chế → fallback sang UUID thuần
+    }
+  },
+
+  /**
+   * Lấy hoặc tạo userId (fingerprint + UUID ngắn)
+   * - Lần đầu: tính fingerprint + tạo UUID → ghép lại → lưu localStorage
+   * - Lần sau: đọc thẳng từ localStorage (không tính lại fingerprint)
+   * - Format: "fp_{12hex}_{8hex}" hoặc "uid_{8hex}" (fallback)
+   *
+   * N8N dùng phần "fp_..." làm Redis key để rate limit:
+   *   → Xóa localStorage tạo UUID mới nhưng fingerprint vẫn giống → vẫn bị block
+   * @returns {Promise<string>}
+   */
+  async getOrCreateUserId() {
+    const cached = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_ID);
+    if (cached) return cached;
+
+    const fingerprint = await this._generateFingerprint();
+    const shortUUID = this.generateUUID().replace(/-/g, '').substring(0, 8);
+
+    const userId = fingerprint
+      ? `${fingerprint}_${shortUUID}`  // fp_a3f8c1d2b5e7_9f2e3a1b
+      : `uid_${shortUUID}`;            // uid_9f2e3a1b (khi browser block fingerprint)
+
+    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
+    return userId;
+  },
+
+  /**
    * Lấy hoặc tạo visitor ID
    */
   getVisitorId() {
@@ -133,6 +235,22 @@ const Storage = {
     const messages = chats[chatId].messages;
     if (messages.length > 0) {
       messages[messages.length - 1].content = content;
+      chats[chatId].updatedAt = new Date().toISOString();
+      localStorage.setItem(CONFIG.STORAGE_KEYS.CHATS, JSON.stringify(chats));
+    }
+  },
+
+  /**
+   * Xóa tin nhắn cuối cùng trong cuộc trò chuyện
+   * Dùng khi rate limit: xóa assistant placeholder rỗng đã tạo trước đó
+   */
+  removeLastMessage(chatId) {
+    const chats = this.getAllChats();
+    if (!chats[chatId]) return;
+
+    const messages = chats[chatId].messages;
+    if (messages.length > 0) {
+      messages.pop();
       chats[chatId].updatedAt = new Date().toISOString();
       localStorage.setItem(CONFIG.STORAGE_KEYS.CHATS, JSON.stringify(chats));
     }

@@ -46,6 +46,12 @@ const Chat = {
         console.log('[Chat] Request cancelled');
         UI.updateMessageContent(messageEl, 'Đã hủy yêu cầu.', false);
         Storage.updateLastMessage(chatId, 'Đã hủy yêu cầu.');
+      } else if (err.isRateLimit) {
+        // Rate limit: xóa bubble AI placeholder rỗng khỏi DOM và storage
+        console.warn('[Chat] Rate limit hit:', err.message);
+        messageEl?.remove();
+        Storage.removeLastMessage(chatId); // Xóa assistant message rỗng vừa thêm
+        UI.showRateLimitToast(err.message);
       } else {
         console.error('[Chat] Error:', err);
         const errorMsg = 'Xin lỗi, Tommy đang gặp sự cố. Bạn vui lòng thử lại sau nhé.';
@@ -72,6 +78,9 @@ const Chat = {
   async _callWebhook(chatId, message) {
     this._abortController = new AbortController();
 
+    // Lấy userId (async — tính fingerprint lần đầu, cache lần sau)
+    const userId = await Storage.getOrCreateUserId();
+
     const response = await fetch(CONFIG.N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -80,9 +89,22 @@ const Chat = {
         chatInput: message,
         sessionId: chatId,
         messageId: Storage.generateMessageId(message),
+        userId, // fp_{fingerprint}_{uuid} — N8N dùng làm Redis key rate limit
       }),
       signal: this._abortController.signal,
     });
+
+    if (response.status === 429) {
+      // Rate limit: đọc message từ n8n rồi throw ngay, không đọc stream
+      let errMsg = 'Bạn đã vượt quá giới hạn lượt gửi tin nhắn! Vui lòng thử lại sau.';
+      try {
+        const body = await response.json();
+        if (body?.message) errMsg = body.message;
+      } catch { /* Giữ message mặc định nếu không parse được body */ }
+      const rateLimitErr = new Error(errMsg);
+      rateLimitErr.isRateLimit = true;
+      throw rateLimitErr;
+    }
 
     if (!response.ok) {
       throw new Error(`Webhook error: ${response.status}`);

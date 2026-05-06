@@ -265,4 +265,54 @@ const UI = {
     div.textContent = str;
     return div.innerHTML;
   },
+
+  /**
+   * Hiển thị toast thông báo rate limit
+   * @param {string} message - Nội dung thông báo
+   */
+  showRateLimitToast(message) {
+    // Xóa toast cũ nếu có
+    document.getElementById('rate-limit-toast')?.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'rate-limit-toast';
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `<span class="toast-icon">⏳</span><span class="toast-message">${this._escapeHtml(message)}</span>`;
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 24px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      white-space: nowrap;
+      max-width: 90vw;
+    `;
+
+    document.body.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    // Animate out sau 4s
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(10px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  },
 };
