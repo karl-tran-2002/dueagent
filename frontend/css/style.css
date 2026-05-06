@@ -1158,10 +1158,9 @@ button {
   background: rgba(0, 0, 0, 0.85);
   color: white;
   font-size: 0.7rem;
-  padding: 5px 11px;
+  padding: 4px 10px;
   border-radius: 6px;
   white-space: nowrap;
-  text-align: center;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
