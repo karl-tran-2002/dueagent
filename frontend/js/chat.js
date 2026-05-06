@@ -47,11 +47,15 @@ const Chat = {
         UI.updateMessageContent(messageEl, 'Đã hủy yêu cầu.', false);
         Storage.updateLastMessage(chatId, 'Đã hủy yêu cầu.');
       } else if (err.isRateLimit) {
-        // Rate limit: xóa bubble AI placeholder rỗng khỏi DOM và storage
+        // Rate limit: hiển thị thông báo dưới dạng bot message và lưu vào storage
         console.warn('[Chat] Rate limit hit:', err.message);
-        messageEl?.remove();
-        Storage.removeLastMessage(chatId); // Xóa assistant message rỗng vừa thêm
-        UI.showRateLimitToast(err.message);
+        const rateLimitMsg = err.message || '⚠️ Bạn gửi tin nhắn quá nhanh! Vui lòng chờ 1 phút.';
+        Storage.updateLastMessage(chatId, rateLimitMsg);
+        if (Storage.getActiveChat() === chatId) {
+          const currentMessages = document.querySelectorAll('.message-assistant');
+          const activeEl = currentMessages.length > 0 ? currentMessages[currentMessages.length - 1] : messageEl;
+          UI.updateMessageContent(activeEl, rateLimitMsg, false);
+        }
       } else {
         console.error('[Chat] Error:', err);
         const errorMsg = 'Xin lỗi, mình đang gặp sự cố. Bạn vui lòng thử lại sau nhé.';
