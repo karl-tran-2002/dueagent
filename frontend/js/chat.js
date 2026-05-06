@@ -139,6 +139,17 @@ const Chat = {
         // Đồng bộ UI với tần số quét của màn hình (rAF) thay vì Throttle thời gian
         if (fullContent.trim() && !rAF_id) {
           rAF_id = requestAnimationFrame(() => {
+            // 0. Bỏ qua render nếu content là JSON error (rate limit / lỗi từ n8n)
+            //    Tránh flash JSON thô lên màn hình trước khi stream kết thúc
+            try {
+              const maybeErr = JSON.parse(fullContent.trim());
+              const isErrorJson = maybeErr.__rateLimit === true || (
+                typeof maybeErr.message === 'string' &&
+                !maybeErr.output && !maybeErr.text && !maybeErr.content
+              );
+              if (isErrorJson) { rAF_id = null; return; }
+            } catch { /* SyntaxError = content text/markdown bình thường, tiếp tục */ }
+
             // 1. Chỉ cập nhật giao diện nếu người dùng đang mở đúng cuộc trò chuyện này
             if (Storage.getActiveChat() === chatId) {
               // Tìm element tin nhắn mới nhất vì DOM có thể đã bị làm mới khi người dùng chuyển qua lại
@@ -175,18 +186,35 @@ const Chat = {
 
     console.log(`[Chat] ${isN8nStream ? 'Streamed' : 'Non-streaming'} - ${chunkCount} chunks`);
 
-    // Kiểm tra rate limit: n8n ChatTrigger luôn trả HTTP 200 dù là lỗi,
-    // nên phải detect qua nội dung JSON thay vì HTTP status
+    // Kiểm tra rate limit / error response từ n8n:
+    // ChatTrigger streaming luôn trả HTTP 200, nên phải detect qua nội dung.
+    // Hỗ trợ 2 format:
+    //   Format mới (khuyến nghị): {"__rateLimit": true, "message": "..."}
+    //   Format hiện tại n8n:      {"message": "..."} — JSON thuần, không có field AI
     try {
-      const parsed = JSON.parse(fullContent.trim());
-      if (parsed.__rateLimit === true) {
+      const trimmed = fullContent.trim();
+      const parsed = JSON.parse(trimmed);
+
+      const isExplicitRateLimit = parsed.__rateLimit === true;
+
+      // Heuristic: JSON chỉ có "message" (không có output/text/content/response)
+      // và không có dấu hiệu markdown trong message → đây là error response, không phải AI reply
+      const AI_FIELDS = ['output', 'text', 'content', 'response', 'answer'];
+      const hasNoAiFields = AI_FIELDS.every(f => !(f in parsed));
+      const isShortErrorJson = (
+        typeof parsed.message === 'string' &&
+        hasNoAiFields &&
+        trimmed.length < 500 // error message ngắn, AI reply có markdown thường dài hơn
+      );
+
+      if (isExplicitRateLimit || isShortErrorJson) {
         const err = new Error(parsed.message || '⚠️ Bạn gửi tin nhắn quá nhanh! Vui lòng chờ 1 phút.');
         err.isRateLimit = true;
         throw err;
       }
     } catch (e) {
       if (e.isRateLimit) throw e; // Ném tiếp lên sendMessage để xử lý
-      // SyntaxError → content bình thường, không phải JSON error → bỏ qua
+      // SyntaxError → content là text/markdown bình thường → bỏ qua
     }
 
     // Tắt streaming cursor, render final
