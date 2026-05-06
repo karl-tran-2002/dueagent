@@ -1160,10 +1160,8 @@ button {
   font-size: 0.7rem;
   padding: 5px 11px;
   border-radius: 6px;
-  white-space: normal;
-  max-width: 160px;
+  white-space: nowrap;
   text-align: center;
-  line-height: 1.0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
