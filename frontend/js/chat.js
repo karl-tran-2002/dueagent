@@ -94,18 +94,6 @@ const Chat = {
       signal: this._abortController.signal,
     });
 
-    if (response.status === 429) {
-      // Rate limit: đọc message từ n8n rồi throw ngay, không đọc stream
-      let errMsg = 'Bạn đã vượt quá giới hạn lượt gửi tin nhắn! Vui lòng thử lại sau.';
-      try {
-        const body = await response.json();
-        if (body?.message) errMsg = body.message;
-      } catch { /* Giữ message mặc định nếu không parse được body */ }
-      const rateLimitErr = new Error(errMsg);
-      rateLimitErr.isRateLimit = true;
-      throw rateLimitErr;
-    }
-
     if (!response.ok) {
       throw new Error(`Webhook error: ${response.status}`);
     }
@@ -186,6 +174,20 @@ const Chat = {
     }
 
     console.log(`[Chat] ${isN8nStream ? 'Streamed' : 'Non-streaming'} - ${chunkCount} chunks`);
+
+    // Kiểm tra rate limit: n8n ChatTrigger luôn trả HTTP 200 dù là lỗi,
+    // nên phải detect qua nội dung JSON thay vì HTTP status
+    try {
+      const parsed = JSON.parse(fullContent.trim());
+      if (parsed.__rateLimit === true) {
+        const err = new Error(parsed.message || '⚠️ Bạn gửi tin nhắn quá nhanh! Vui lòng chờ 1 phút.');
+        err.isRateLimit = true;
+        throw err;
+      }
+    } catch (e) {
+      if (e.isRateLimit) throw e; // Ném tiếp lên sendMessage để xử lý
+      // SyntaxError → content bình thường, không phải JSON error → bỏ qua
+    }
 
     // Tắt streaming cursor, render final
     Storage.updateLastMessage(chatId, fullContent);
