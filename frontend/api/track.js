@@ -18,8 +18,11 @@ export default async function handler(req) {
     const n8nUrl = process.env.N8N_TRACK_EVENT_URL;
 
     if (n8nUrl && type) {
-      // Fire and forget tới n8n
-      fetch(`${n8nUrl}?type=${type}`, { method: 'GET' }).catch(err => console.error('Tracking error:', err));
+      try {
+        await fetch(`${n8nUrl}?type=${type}`, { method: 'GET' });
+      } catch (err) {
+        console.error('Tracking error:', err);
+      }
     }
 
     return new Response('OK', {
