@@ -127,6 +127,8 @@ const App = {
 
       const fullName = document.getElementById('user-info-name').value.trim();
       const dob = document.getElementById('user-info-dob').value.trim();
+      const isStudentEl = form.querySelector('input[name="is-student"]:checked');
+      const isStudent = isStudentEl ? isStudentEl.value === 'true' : null;
 
       // --- Validation ---
       const errors = [];
@@ -150,6 +152,8 @@ const App = {
         }
       }
 
+      if (isStudent === null) errors.push('Vui lòng chọn một đáp án.');
+
       if (errors.length > 0) {
         this._showModalError(errors[0]);
         return;
@@ -167,7 +171,7 @@ const App = {
         const res = await fetch(CONFIG.N8N_NEW_USER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, fullName, dob }),
+          body: JSON.stringify({ userId, fullName, dob, isStudent }),
         });
 
         if (!res.ok) {
@@ -182,7 +186,7 @@ const App = {
       }
 
       // Lưu vào localStorage sau khi webhook thành công
-      Storage.setUserInfo({ fullName, dob, userId });
+      Storage.setUserInfo({ fullName, dob, isStudent, userId });
       localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
 
       // Track người dùng mới (visitor count)

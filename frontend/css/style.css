@@ -1559,3 +1559,30 @@ button {
 .user-info-submit-btn:active {
   transform: scale(0.98);
 }
+
+.user-info-radio-group {
+  display: flex;
+  gap: 24px;
+  padding: 4px 0;
+}
+
+.user-info-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  user-select: none;
+}
+
+.user-info-radio-label input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #2980b9;
+  margin: 3px;
+  cursor: pointer;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}

@@ -138,6 +138,17 @@
           <label for="user-info-dob">Ngày sinh <span class="required">*</span></label>
           <input type="text" id="user-info-dob" placeholder="VD: 08/03/2005" maxlength="10" inputmode="numeric" required>
         </div>
+        <div class="user-info-field">
+          <label>Bạn có đang là sinh viên ngành Quản Trị Nhân Lực? <span class="required">*</span></label>
+          <div class="user-info-radio-group">
+            <label class="user-info-radio-label">
+              <input type="radio" name="is-student" value="true" required> Có
+            </label>
+            <label class="user-info-radio-label">
+              <input type="radio" name="is-student" value="false"> Không
+            </label>
+          </div>
+        </div>
         <button type="submit" class="user-info-submit-btn">Bắt đầu</button>
       </form>
     </div>
