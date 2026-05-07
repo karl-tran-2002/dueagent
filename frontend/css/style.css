@@ -1523,7 +1523,7 @@ button {
   padding: 10px 14px;
   border: 1.5px solid #ddd;
   border-radius: 10px;
-  font-size: 0.95rem;
+  font-size: 16px; /* Tối thiểu 16px để iOS không auto-zoom khi focus */
   transition: border-color 0.2s;
   outline: none;
   box-sizing: border-box;
