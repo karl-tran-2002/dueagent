@@ -119,20 +119,28 @@ const App = {
       // Tạo userId từ thông tin người dùng (hash xác định)
       const userId = await Storage.generateUserIdFromInfo(fullName, dob, phone);
 
-      // Lưu vào localStorage
-      Storage.setUserInfo({ fullName, dob, phone, userId });
-      localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
-
-      // Gọi webhook /new-user
+      // Gọi webhook /new-user — bắt buộc thành công mới cho tiếp tục
       try {
-        await fetch(CONFIG.N8N_NEW_USER_URL, {
+        const res = await fetch(CONFIG.N8N_NEW_USER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId, fullName, dob, phone }),
         });
+
+        if (!res.ok) {
+          throw new Error(`Server trả về lỗi ${res.status}`);
+        }
       } catch (err) {
-        console.warn('[App] /new-user webhook failed (non-blocking):', err);
+        console.error('[App] /new-user webhook failed:', err);
+        this._showModalError('Không thể kết nối máy chủ. Vui lòng thử lại.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Bắt đầu';
+        return;
       }
+
+      // Lưu vào localStorage sau khi webhook thành công
+      Storage.setUserInfo({ fullName, dob, phone, userId });
+      localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
 
       overlay.classList.remove('active');
       console.log('[DUE Agent] User info saved, userId:', userId);
