@@ -85,6 +85,9 @@ const Chat = {
     // Lấy userId (async — tính fingerprint lần đầu, cache lần sau)
     const userId = await Storage.getOrCreateUserId();
 
+    // Lấy thông tin người dùng đã thu thập
+    const userInfo = Storage.getUserInfo();
+
     const response = await fetch(CONFIG.N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -94,6 +97,7 @@ const Chat = {
         sessionId: chatId,
         messageId: Storage.generateMessageId(message),
         userId, // fp_{fingerprint}_{uuid} — N8N dùng làm Redis key rate limit
+        userInfo: userInfo || {}, // { fullName, birthYear, phone }
       }),
       signal: this._abortController.signal,
     });

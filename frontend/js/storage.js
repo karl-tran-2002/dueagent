@@ -4,6 +4,22 @@
  */
 const Storage = {
   /**
+   * Tạo userId xác định từ thông tin người dùng (fullName + dob + phone)
+   * Cùng người → cùng ID, kể cả xóa localStorage
+   * Format: "user_{16hex}"
+   * @returns {Promise<string>}
+   */
+  async generateUserIdFromInfo(fullName, dob, phone) {
+    const raw = [fullName.trim().toLowerCase(), dob.trim(), phone.trim()].join('|');
+    const encoded = new TextEncoder().encode(raw);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+    const hashHex = Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    return 'user_' + hashHex.substring(0, 16);
+  },
+
+  /**
    * Tạo UUID có fallback cho trình duyệt không hỗ trợ crypto.randomUUID
    */
   generateUUID() {
@@ -303,5 +319,21 @@ const Storage = {
    */
   setActiveChat(chatId) {
     localStorage.setItem(CONFIG.STORAGE_KEYS.ACTIVE_CHAT, chatId);
+  },
+
+  /**
+   * Lấy thông tin người dùng đã lưu
+   * @returns {{ fullName: string, birthYear: string, phone: string } | null}
+   */
+  getUserInfo() {
+    const data = localStorage.getItem(CONFIG.STORAGE_KEYS.USER_INFO);
+    return data ? JSON.parse(data) : null;
+  },
+
+  /**
+   * Lưu thông tin người dùng
+   */
+  setUserInfo(info) {
+    localStorage.setItem(CONFIG.STORAGE_KEYS.USER_INFO, JSON.stringify(info));
   },
 };

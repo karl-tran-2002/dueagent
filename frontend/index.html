@@ -122,6 +122,31 @@
   <script src="js/sidebar.js"></script>
   <script src="js/app.js"></script>
 
+  <!-- User Info Collection Modal -->
+  <div class="user-info-modal-overlay" id="user-info-modal-overlay">
+    <div class="user-info-modal">
+      <div class="user-info-modal-header">
+        <img src="assets/DUE.png" alt="DUE Logo" style="width:40px;height:40px;object-fit:contain;">
+        <h3>Thông tin người dùng</h3>
+      </div>
+      <form id="user-info-form" autocomplete="off">
+        <div class="user-info-field">
+          <label for="user-info-name">Họ và tên <span class="required">*</span></label>
+          <input type="text" id="user-info-name" placeholder="VD: Nguyễn Văn A" required maxlength="100">
+        </div>
+        <div class="user-info-field">
+          <label for="user-info-dob">Ngày sinh <span class="required">*</span></label>
+          <input type="text" id="user-info-dob" placeholder="VD: 29/08/2002" maxlength="10" inputmode="numeric" required>
+        </div>
+        <div class="user-info-field">
+          <label for="user-info-phone">Số điện thoại <span class="required">*</span></label>
+          <input type="tel" id="user-info-phone" placeholder="VD: 0901234567" maxlength="10" required>
+        </div>
+        <button type="submit" class="user-info-submit-btn">Bắt đầu</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Custom Confirm Modal -->
   <div class="confirm-modal-overlay" id="confirm-modal-overlay">
     <div class="confirm-modal">

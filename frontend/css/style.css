@@ -1445,3 +1445,113 @@ button {
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
 }
+
+/* ===== User Info Collection Modal ===== */
+.user-info-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.user-info-modal-overlay.active {
+  display: flex;
+}
+
+.user-info-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: userInfoModalIn 0.3s ease;
+}
+
+@keyframes userInfoModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.user-info-modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.user-info-modal-header h3 {
+  margin: 12px 0 4px;
+  font-size: 1.3rem;
+  color: #1a5276;
+}
+
+.user-info-modal-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.user-info-field {
+  margin-bottom: 16px;
+}
+
+.user-info-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.user-info-field label .required {
+  color: #e74c3c;
+}
+
+.user-info-field input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.user-info-field input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.user-info-submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #1a5276, #2980b9);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.user-info-submit-btn:hover {
+  opacity: 0.9;
+}
+
+.user-info-submit-btn:active {
+  transform: scale(0.98);
+}

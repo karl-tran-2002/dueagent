@@ -3,6 +3,7 @@ export default function handler(req, res) {
   res.status(200).json({
     N8N_WEBHOOK_URL: '/api/chat',
     N8N_TRACK_EVENT_URL: '/api/track',
+    N8N_NEW_USER_URL: '/api/new-user',
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
   });

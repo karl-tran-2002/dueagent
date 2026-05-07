@@ -9,6 +9,9 @@ const CONFIG = {
   // N8N Track Event Webhook - Webhook duy nhất để đếm số liệu
   N8N_TRACK_EVENT_URL: '', // Sẽ được inject từ Vercel Serverless Function
 
+  // N8N New User Webhook - Lưu thông tin người dùng mới
+  N8N_NEW_USER_URL: '', // Sẽ được inject từ Vercel Serverless Function
+
   // Airtable config - thay đổi khi setup
   AIRTABLE: {
     API_KEY: '', // Personal Access Token
@@ -41,6 +44,7 @@ const CONFIG = {
     ACTIVE_CHAT: 'due_agent_active_chat',
     VISITOR_ID: 'due_agent_visitor_id',
     USER_ID: 'due_agent_user_id', // userId = fingerprint + UUID (dùng cho rate limiting)
+    USER_INFO: 'due_agent_user_info', // Họ tên, năm sinh, SĐT
   },
 
   // Limits
