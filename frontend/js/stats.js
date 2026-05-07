@@ -18,23 +18,11 @@ const Stats = {
       console.error('Supabase library or config not loaded!');
     }
 
-    // 2. Chờ việc track visit qua n8n ghi nhận xong xuôi vào Database
-    await this._trackVisit();
-
-    // 3. Sau khi DB đã được n8n cập nhật xong, mới lấy số mới nhất hiển thị
+    // 2. Lấy dữ liệu ban đầu từ Supabase
     this._fetchInitialData();
 
-    // 4. Đăng ký nhận thông báo Realtime từ Supabase cho các thay đổi sau này
+    // 3. Đăng ký nhận thông báo Realtime từ Supabase cho các thay đổi sau này
     this._subscribeToRealtime();
-  },
-
-  /**
-   * Track lượt truy cập (Chỉ gọi 1 lần mỗi session)
-   */
-  async _trackVisit() {
-    if (sessionStorage.getItem('due_agent_visited')) return;
-    sessionStorage.setItem('due_agent_visited', 'true');
-    await this.trackEvent('visit');
   },
 
   /**

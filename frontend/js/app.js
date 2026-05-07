@@ -185,6 +185,9 @@ const App = {
       Storage.setUserInfo({ fullName, dob, userId });
       localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
 
+      // Track người dùng mới (visitor count)
+      Stats.trackEvent('visit');
+
       overlay.classList.remove('active');
       console.log('[DUE Agent] User info saved, userId:', userId);
     });
