@@ -4,13 +4,13 @@
  */
 const Storage = {
   /**
-   * Tạo userId xác định từ thông tin người dùng (fullName + dob + phone)
+   * Tạo userId xác định từ thông tin người dùng (fullName + dob)
    * Cùng người → cùng ID, kể cả xóa localStorage
    * Format: "user_{16hex}"
    * @returns {Promise<string>}
    */
-  async generateUserIdFromInfo(fullName, dob, phone) {
-    const raw = [fullName.trim().toLowerCase(), dob.trim(), phone.trim()].join('|');
+  async generateUserIdFromInfo(fullName, dob) {
+    const raw = [fullName.trim().toLowerCase(), dob.trim()].join('|');
     const encoded = new TextEncoder().encode(raw);
     const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
     const hashHex = Array.from(new Uint8Array(hashBuffer))

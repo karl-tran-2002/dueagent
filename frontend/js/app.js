@@ -80,7 +80,6 @@ const App = {
 
       const fullName = document.getElementById('user-info-name').value.trim();
       const dob = document.getElementById('user-info-dob').value.trim();
-      const phone = document.getElementById('user-info-phone').value.trim();
 
       // --- Validation ---
       const errors = [];
@@ -104,9 +103,6 @@ const App = {
         }
       }
 
-      // Số điện thoại: 10 chữ số, bắt đầu bằng 0
-      if (!/^0\d{9}$/.test(phone)) errors.push('Số điện thoại phải có 10 chữ số và bắt đầu bằng 0.');
-
       if (errors.length > 0) {
         this._showModalError(errors[0]);
         return;
@@ -117,14 +113,14 @@ const App = {
       submitBtn.textContent = 'Đang lưu...';
 
       // Tạo userId từ thông tin người dùng (hash xác định)
-      const userId = await Storage.generateUserIdFromInfo(fullName, dob, phone);
+      const userId = await Storage.generateUserIdFromInfo(fullName, dob);
 
       // Gọi webhook /new-user — bắt buộc thành công mới cho tiếp tục
       try {
         const res = await fetch(CONFIG.N8N_NEW_USER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, fullName, dob, phone }),
+          body: JSON.stringify({ userId, fullName, dob }),
         });
 
         if (!res.ok) {
@@ -139,7 +135,7 @@ const App = {
       }
 
       // Lưu vào localStorage sau khi webhook thành công
-      Storage.setUserInfo({ fullName, dob, phone, userId });
+      Storage.setUserInfo({ fullName, dob, userId });
       localStorage.setItem(CONFIG.STORAGE_KEYS.USER_ID, userId);
 
       overlay.classList.remove('active');
