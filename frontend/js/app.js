@@ -74,6 +74,31 @@ const App = {
 
     overlay.classList.add('active');
 
+    // Auto-format ngày sinh DD/MM/YYYY (cần thiết trên mobile vì bàn phím số không có dấu /)
+    const dobInput = document.getElementById('user-info-dob');
+    dobInput?.addEventListener('input', (e) => {
+      const input = e.target;
+      const cursorPos = input.selectionStart;
+      const prev = input.value;
+
+      // Chỉ giữ lại chữ số
+      const digits = prev.replace(/\D/g, '').substring(0, 8);
+
+      // Chèn dấu / đúng vị trí: DD/MM/YYYY
+      let formatted = digits;
+      if (digits.length > 4) {
+        formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+      } else if (digits.length > 2) {
+        formatted = digits.slice(0, 2) + '/' + digits.slice(2);
+      }
+
+      input.value = formatted;
+
+      // Giữ cursor sau ký tự vừa nhập (bù thêm nếu vừa chèn dấu /)
+      const added = formatted.length - prev.length;
+      input.setSelectionRange(cursorPos + added, cursorPos + added);
+    });
+
     const form = document.getElementById('user-info-form');
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
