@@ -74,30 +74,52 @@ const App = {
 
     overlay.classList.add('active');
 
-    // Auto-format ngày sinh DD/MM/YYYY (cần thiết trên mobile vì bàn phím số không có dấu /)
+    // Auto-format ngày sinh DD/MM/YYYY
     const dobInput = document.getElementById('user-info-dob');
-    dobInput?.addEventListener('input', (e) => {
-      const input = e.target;
-      const cursorPos = input.selectionStart;
-      const prev = input.value;
+    if (dobInput) {
+      // Xử lý khi người dùng gõ dấu / thủ công:
+      // chỉ cho phép ở đúng vị trí 2 và 5 (sau DD và MM)
+      dobInput.addEventListener('keydown', (e) => {
+        if (e.key === '/') {
+          e.preventDefault();
+          const val = e.target.value;
+          const pos = e.target.selectionStart;
+          if (val[pos] === '/') {
+            // Con trỏ đang trước dấu / có sẵn → nhảy qua
+            e.target.setSelectionRange(pos + 1, pos + 1);
+          } else if (pos === 2 || pos === 5) {
+            // Vị trí hợp lệ → chèn dấu /
+            const newVal = val.slice(0, pos) + '/' + val.slice(pos);
+            e.target.value = newVal.substring(0, 10);
+            e.target.setSelectionRange(pos + 1, pos + 1);
+          }
+          // Các vị trí khác → chặn, không làm gì
+        }
+      });
 
-      // Chỉ giữ lại chữ số
-      const digits = prev.replace(/\D/g, '').substring(0, 8);
+      // Tự động thêm dấu / khi người dùng chỉ gõ số
+      dobInput.addEventListener('input', (e) => {
+        const input = e.target;
+        const raw = input.value;
+        const cursorPos = input.selectionStart;
 
-      // Chèn dấu / đúng vị trí: DD/MM/YYYY
-      let formatted = digits;
-      if (digits.length > 4) {
-        formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
-      } else if (digits.length > 2) {
-        formatted = digits.slice(0, 2) + '/' + digits.slice(2);
-      }
+        const digits = raw.replace(/\D/g, '').substring(0, 8);
 
-      input.value = formatted;
+        let formatted = digits;
+        if (digits.length > 4) {
+          formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+        } else if (digits.length > 2) {
+          formatted = digits.slice(0, 2) + '/' + digits.slice(2);
+        }
 
-      // Giữ cursor sau ký tự vừa nhập (bù thêm nếu vừa chèn dấu /)
-      const added = formatted.length - prev.length;
-      input.setSelectionRange(cursorPos + added, cursorPos + added);
-    });
+        if (input.value !== formatted) {
+          const diff = formatted.length - raw.length;
+          input.value = formatted;
+          const newCursor = Math.min(formatted.length, Math.max(0, cursorPos + diff));
+          input.setSelectionRange(newCursor, newCursor);
+        }
+      });
+    }
 
     const form = document.getElementById('user-info-form');
     form?.addEventListener('submit', async (e) => {
