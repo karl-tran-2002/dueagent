@@ -1577,8 +1577,8 @@ button {
 }
 
 .user-info-radio-label input[type="radio"] {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   accent-color: #2980b9;
   margin: 2px;
   cursor: pointer;
