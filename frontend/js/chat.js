@@ -98,6 +98,8 @@ const Chat = {
         messageId: Storage.generateMessageId(message),
         userId, // fp_{fingerprint}_{uuid} — N8N dùng làm Redis key rate limit
         userName: userInfo?.fullName || '',
+        dob: userInfo?.dob || '',
+        isStudent: userInfo?.isStudent ?? null,
       }),
       signal: this._abortController.signal,
     });
